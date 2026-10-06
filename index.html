@@ -3,16 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PORT</title>
+<title>PORT // CORRUPTED</title>
 
 <style>
 html, body {
     margin: 0;
-    width: 100%;
     height: 100%;
     background: #020302;
     color: #78a878;
-    font-family: "Courier New", monospace;
+    font-family: "Courier New", Courier, monospace;
     overflow: hidden;
 }
 
@@ -34,103 +33,220 @@ body {
         inset 0 0 70px #000,
         0 0 25px #0b170d;
     position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-#log {
-    font-size: clamp(14px, 2vw, 19px);
-    line-height: 1.65;
-    white-space: pre-wrap;
-}
-
-.dim {
+#screen::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0, 0, 0, .18) 0 1px,
+        transparent 1px 3px
+    );
     opacity: .45;
 }
 
+#log {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    font-size: clamp(14px, 2vw, 19px);
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    scrollbar-width: none;
+}
+
+#log::-webkit-scrollbar { display: none; }
+
+.line { min-height: 1.65em; }
+
+.dim { opacity: .45; }
+
 .cursor {
     display: inline-block;
-    width: 10px;
-    height: 18px;
+    width: .55em;
+    height: 1em;
+    vertical-align: -.15em;
     background: #78a878;
     animation: blink .7s steps(1) infinite;
 }
 
-@keyframes blink {
-    50% { opacity: 0; }
-}
+@keyframes blink { 50% { opacity: 0; } }
 
-/* ГЛИТЧ */
+/* ========== ХОРРОР-ГЛИТЧ ========== */
 
-#glitch {
+#horror {
     position: fixed;
     inset: 0;
-    display: none;
     background: #000;
-    color: #79c985;
-    font-family: "Courier New", monospace;
-    z-index: 20;
+    z-index: 100;
+    display: none;
     overflow: hidden;
+    font-family: "Courier New", monospace;
+    color: #0f0;
 }
 
-.glitch-text {
+#horror.active {
+    display: block;
+}
+
+/* статический шум */
+.static {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(255,255,255,0.06) 0px,
+        rgba(255,255,255,0.06) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    animation: staticMove 0.08s steps(10) infinite;
+    opacity: 0.6;
+    pointer-events: none;
+    z-index: 1;
+}
+
+@keyframes staticMove {
+    0%   { transform: translate(0, 0); }
+    25%  { transform: translate(-6px, 6px); }
+    50%  { transform: translate(6px, -6px); }
+    75%  { transform: translate(-6px, -6px); }
+    100% { transform: translate(6px, 6px); }
+}
+
+/* скан-линии */
+.scanlines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.4) 0px,
+        rgba(0,0,0,0.4) 2px,
+        transparent 2px,
+        transparent 4px
+    );
+    animation: scanMove 0.15s linear infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes scanMove {
+    0%   { transform: translateY(0); }
+    100% { transform: translateY(4px); }
+}
+
+/* главный текст */
+.horror-text {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    font-size: clamp(18px, 5vw, 55px);
+    font-size: clamp(30px, 8vw, 100px);
     font-weight: bold;
+    color: #ff0000;
+    text-shadow: 4px 0 #00ffff, -4px 0 #ff00ff, 0 0 30px #ff0000;
+    animation: horrorShake 0.05s infinite, rgbSplit 0.05s infinite;
     white-space: nowrap;
-    text-shadow:
-        4px 0 #ff003c,
-        -4px 0 #00ffff;
-    animation: shake .05s infinite;
+    z-index: 3;
+    text-align: center;
+    letter-spacing: 4px;
 }
 
+@keyframes horrorShake {
+    0%   { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+    20%  { transform: translate(-50%, -50%) translate(-12px, 6px) rotate(-3deg); }
+    40%  { transform: translate(-50%, -50%) translate(12px, -6px) rotate(3deg); }
+    60%  { transform: translate(-50%, -50%) translate(-6px, -12px) rotate(-2deg); }
+    80%  { transform: translate(-50%, -50%) translate(6px, 12px) rotate(2deg); }
+    100% { transform: translate(-50%, -50%) translate(0, 0) rotate(0deg); }
+}
+
+@keyframes rgbSplit {
+    0%   { text-shadow: 6px 0 #00ffff, -6px 0 #ff00ff; }
+    25%  { text-shadow: -6px 0 #00ffff, 6px 0 #ff00ff; }
+    50%  { text-shadow: 10px 0 #00ffff, -10px 0 #ff00ff; }
+    75%  { text-shadow: -10px 0 #00ffff, 10px 0 #ff00ff; }
+    100% { text-shadow: 6px 0 #00ffff, -6px 0 #ff00ff; }
+}
+
+/* горизонтальные полосы-разрывы */
 .glitch-line {
     position: absolute;
     width: 100%;
     height: 3px;
     background: #79c985;
-    opacity: .7;
-    animation: lines .08s infinite;
+    opacity: .8;
+    animation: lines 0.06s infinite;
+    z-index: 4;
 }
 
-.glitch-line:nth-child(2) { top: 18%; }
-.glitch-line:nth-child(3) { top: 43%; }
-.glitch-line:nth-child(4) { top: 71%; }
-.glitch-line:nth-child(5) { top: 88%; }
-
-@keyframes shake {
-    0%   { transform: translate(-50%, -50%) translate(0); }
-    25%  { transform: translate(-48%, -52%) translate(8px, -3px); }
-    50%  { transform: translate(-52%, -48%) translate(-7px, 4px); }
-    75%  { transform: translate(-49%, -51%) translate(4px, 6px); }
-    100% { transform: translate(-50%, -50%) translate(0); }
-}
+.glitch-line:nth-child(4) { top: 12%; }
+.glitch-line:nth-child(5) { top: 38%; }
+.glitch-line:nth-child(6) { top: 64%; }
+.glitch-line:nth-child(7) { top: 87%; }
 
 @keyframes lines {
-    0% { transform: translateX(-20%); }
-    50% { transform: translateX(20%); }
-    100% { transform: translateX(-10%); }
+    0%   { transform: translateX(-30%); opacity: .2; }
+    50%  { transform: translateX(30%); opacity: 1; }
+    100% { transform: translateX(-20%); opacity: .3; }
 }
 
-.red {
-    color: #b63b3b;
+/* тряска всего body */
+body.horror-active {
+    animation: bodyShake 0.08s infinite;
 }
 
-.big {
-    font-size: clamp(25px, 7vw, 70px);
+@keyframes bodyShake {
+    0%   { transform: translate(0, 0); }
+    10%  { transform: translate(-6px, -6px); }
+    20%  { transform: translate(6px, 6px); }
+    30%  { transform: translate(-6px, 6px); }
+    40%  { transform: translate(6px, -6px); }
+    50%  { transform: translate(-6px, -6px); }
+    60%  { transform: translate(6px, 6px); }
+    70%  { transform: translate(-6px, 6px); }
+    80%  { transform: translate(6px, -6px); }
+    90%  { transform: translate(0, 0); }
+    100% { transform: translate(0, 0); }
 }
 
-/* СТАРЫЙ МОНИТОР */
-
-.crt {
-    animation: crt .12s infinite;
+/* мигание фона экрана */
+body.horror-active #screen {
+    animation: flashBg 0.07s infinite alternate;
 }
 
-@keyframes crt {
-    0% { filter: brightness(1); }
-    50% { filter: brightness(.7) contrast(1.4); }
-    100% { filter: brightness(1.2); }
+@keyframes flashBg {
+    0%   { background: #061006; }
+    30%  { background: #1a0000; }
+    60%  { background: #000000; }
+    100% { background: #0a1a0a; }
+}
+
+/* инверсия */
+.invert {
+    filter: invert(1) hue-rotate(180deg) contrast(2);
+}
+
+/* порченные строки */
+.corrupted {
+    color: #ff0000 !important;
+    text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff;
+    background: rgba(255, 0, 0, 0.05);
+}
+
+/* уважение к настройкам системы */
+@media (prefers-reduced-motion: reduce) {
+    .cursor, .crt, .glitch-text, .glitch-line,
+    .static, .scanlines, .horror-text,
+    body.horror-active { animation: none !important; }
 }
 </style>
 </head>
@@ -141,11 +257,11 @@ body {
     <div id="log"></div>
 </div>
 
-<div id="glitch">
-    <div class="glitch-text" id="glitchText">
-        ADMIN → INSIDE
-    </div>
-
+<!-- ХОРРОР-ОВЕРЛЕЙ -->
+<div id="horror">
+    <div class="static"></div>
+    <div class="scanlines"></div>
+    <div class="horror-text" id="horrorText">ADMIN → INSIDE</div>
     <div class="glitch-line"></div>
     <div class="glitch-line"></div>
     <div class="glitch-line"></div>
@@ -153,111 +269,186 @@ body {
 </div>
 
 <script>
+(function () {
+    "use strict";
 
-const lines = [
-    "SYSTEM LOG",
-    "",
-    "CONNECTION ESTABLISHED",
-    "EDITORIAL NETWORK / ARCHIVE",
-    "",
-    "ADMIN — ACTIVE",
-    "",
-    "PC-04 → PC-07",
-    "PC-07 → PC-04",
-    "PC-04 → PC-04",
-    "",
-    "PORT STATUS: UNKNOWN",
-    "",
-    "09:15 ADMIN → PORT"
-];
+    const log       = document.getElementById("log");
+    const screenEl  = document.getElementById("screen");
+    const horror    = document.getElementById("horror");
+    const horrorText = document.getElementById("horrorText");
 
-const log = document.getElementById("log");
-const glitch = document.getElementById("glitch");
-const glitchText = document.getElementById("glitchText");
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-let index = 0;
+    /* ---------- курсор ---------- */
+    const caret = document.createElement("span");
+    caret.className = "cursor";
+    caret.setAttribute("aria-hidden", "true");
 
-function typeLine() {
-
-    if (index >= lines.length) {
-
-        setTimeout(startGlitch, 1800);
-        return;
+    function makeLine(text, cls) {
+        const el = document.createElement("div");
+        el.className = "line" + (cls ? " " + cls : "");
+        el.textContent = text === "" ? "\u00A0" : text;
+        return el;
     }
 
-    const line = document.createElement("div");
-
-    if (index === 0 || index === 10) {
-        line.className = "dim";
+    function render(lines) {
+        log.textContent = "";
+        for (let i = 0; i < lines.length; i++) {
+            log.appendChild(makeLine(lines[i][0], lines[i][1]));
+        }
+        log.appendChild(caret);
+        log.scrollTop = log.scrollHeight;
     }
 
-    line.textContent = lines[index];
+    /* ---------- сценарий ---------- */
 
-    log.appendChild(line);
+    const OPENING = [
+        ["SYSTEM LOG", "dim"],
+        [""],
+        ["CONNECTION ESTABLISHED"],
+        ["EDITORIAL NETWORK / ARCHIVE"],
+        [""],
+        ["ADMIN — ACTIVE"],
+        [""],
+        ["PC-04 → PC-07"],
+        ["PC-07 → PC-04"],
+        ["PC-04 → PC-04"],
+        [""],
+        ["PORT STATUS: UNKNOWN"],
+        [""],
+        ["09:15 ADMIN → PORT"]
+    ];
 
-    index++;
+    const FINAL = [
+        ["SYSTEM LOG", "dim"],
+        [""],
+        ["ADMIN — ACTIVE"],
+        [""],
+        ["09:15 ADMIN → PORT"],
+        ["09:15 ADMIN → INSIDE"],
+        ["09:16 ADMIN → WALL"],
+        ["09:17 ADMIN → YOU"]
+    ];
 
-    setTimeout(typeLine, 220);
-}
+    /* ---------- печать ---------- */
 
-function startGlitch() {
+    let index = 0;
 
-    glitch.style.display = "block";
-
-    let phase = 0;
-
-    const interval = setInterval(() => {
-
-        phase++;
-
-        if (phase === 1) {
-            glitchText.textContent = "09:15 ADMIN → INSIDE";
+    function typeLine() {
+        if (index >= OPENING.length) {
+            setTimeout(startHorror, 1800);
+            return;
         }
 
-        if (phase === 5) {
-            glitchText.textContent = "ADMIN — ACTIVE";
+        const entry = OPENING[index];
+        log.insertBefore(makeLine(entry[0], entry[1]), caret);
+        log.scrollTop = log.scrollHeight;
+
+        index++;
+
+        const delay = entry[0] ? 190 + Math.random() * 110 : 90;
+        setTimeout(typeLine, delay);
+    }
+
+    /* ---------- ХОРРОР ---------- */
+
+    function startHorror() {
+        if (reduceMotion) {
+            render(FINAL);
+            return;
         }
 
-        if (phase === 9) {
-            glitchText.textContent = "ADMIN → WALL";
-        }
+        // Включаем ад
+        document.body.classList.add('horror-active');
+        horror.classList.add('active');
 
-        if (phase === 13) {
-            glitchText.textContent = "PC-04 → PC-04";
-        }
+        const phrases = [
+            "YOU ARE INSIDE",
+            "ADMIN → INSIDE",
+            "ОНО ВНУТРИ",
+            "HE SEES YOU",
+            "BEHIND YOU",
+            "NO ESCAPE",
+            "SYSTEM FAILURE",
+            "CORRUPTED",
+            "ПОРТ ОТКРЫТ",
+            "ТЫ ВНУТРИ",
+            "НЕ ВЫХОДИ",
+            "СЛИШКОМ ПОЗДНО"
+        ];
 
-        if (phase === 17) {
-            glitchText.textContent = "YOU ARE INSIDE";
-            glitchText.classList.add("big", "red");
-        }
+        // Бешеное мигание текста и фона
+        const textInterval = setInterval(() => {
+            horrorText.textContent = phrases[Math.floor(Math.random() * phrases.length)];
 
-        if (phase >= 25) {
+            if (Math.random() < 0.4) {
+                screenEl.classList.toggle('invert');
+            }
 
-            clearInterval(interval);
+            const colors = ['#000', '#1a0000', '#001a00', '#1a1a00', '#0a0a0a'];
+            horror.style.background = colors[Math.floor(Math.random() * colors.length)];
+        }, 80);
 
+        // Порча логов
+        const symbols = '!@#$%^&*()_+-=[]{}|;:",.<>?/\\~`ЖДЫШЩЮЯ';
+        const corruptionInterval = setInterval(() => {
+            const lines = log.querySelectorAll('.line');
+            if (lines.length === 0) return;
+
+            const line = lines[Math.floor(Math.random() * lines.length)];
+            const txt = line.textContent;
+            if (txt === '\u00A0' || txt.length < 2) return;
+
+            const pos = Math.floor(Math.random() * txt.length);
+            const sym = symbols[Math.floor(Math.random() * symbols.length)];
+            line.textContent = txt.substring(0, pos) + sym + txt.substring(pos + 1);
+            line.classList.add('corrupted');
+
+            if (Math.random() < 0.3) {
+                setTimeout(() => line.classList.remove('corrupted'), 150);
+            }
+        }, 40);
+
+        // Через 5 секунд — финальный выброс
+        setTimeout(() => {
+            clearInterval(textInterval);
+            clearInterval(corruptionInterval);
+
+            horrorText.textContent = "YOU ARE INSIDE";
+            horrorText.style.color = "#ff0000";
+            horrorText.style.textShadow = "0 0 40px #ff0000, 8px 0 #00ffff, -8px 0 #ff00ff";
+            horrorText.style.fontSize = "clamp(50px, 14vw, 180px)";
+            horrorText.style.letterSpacing = "8px";
+
+            // Ещё немного ада
+            const finalFlash = setInterval(() => {
+                horror.style.background = Math.random() < 0.5 ? '#1a0000' : '#000';
+                screenEl.classList.toggle('invert');
+            }, 60);
+
+            // Через 3 секунды всё стихает
             setTimeout(() => {
+                clearInterval(finalFlash);
+                horror.classList.remove('active');
+                document.body.classList.remove('horror-active');
+                screenEl.classList.remove('invert');
+                horror.style.background = '#000';
 
-                glitch.style.display = "none";
+                render(FINAL);
+            }, 3000);
+        }, 5000);
+    }
 
-                document.body.classList.add("crt");
+    /* ---------- запуск ---------- */
 
-                log.innerHTML =
-                    "SYSTEM LOG\n\n" +
-                    "ADMIN — ACTIVE\n\n" +
-                    "09:15 ADMIN → PORT\n\n" +
-                    "09:15 ADMIN → INSIDE\n\n" +
-                    "09:16 ADMIN → WALL\n\n" +
-                    "<span class='cursor'></span>";
+    render([]);
 
-            }, 350);
-
-        }
-
-    }, 90);
-}
-
-typeLine();
-
+    if (reduceMotion) {
+        render(FINAL);
+    } else {
+        setTimeout(typeLine, 400);
+    }
+})();
 </script>
 
 </body>
