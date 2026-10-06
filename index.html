@@ -8,10 +8,9 @@
 <style>
 html, body {
     margin: 0;
-    padding: 0;
     width: 100%;
     height: 100%;
-    background: #050605;
+    background: #020302;
     color: #78a878;
     font-family: "Courier New", monospace;
     overflow: hidden;
@@ -25,25 +24,26 @@ body {
 
 #screen {
     width: 90%;
-    max-width: 850px;
-    height: 80%;
-    padding: 30px;
+    max-width: 900px;
+    height: 82%;
+    padding: 28px;
     box-sizing: border-box;
-    background: #071008;
-    border: 1px solid #263d2a;
+    background: #061006;
+    border: 1px solid #29402d;
     box-shadow:
-        inset 0 0 50px #000,
-        0 0 25px #0b160d;
+        inset 0 0 70px #000,
+        0 0 25px #0b170d;
+    position: relative;
 }
 
 #log {
-    white-space: pre-wrap;
     font-size: clamp(14px, 2vw, 19px);
-    line-height: 1.7;
+    line-height: 1.65;
+    white-space: pre-wrap;
 }
 
 .dim {
-    opacity: 0.55;
+    opacity: .45;
 }
 
 .cursor {
@@ -51,25 +51,86 @@ body {
     width: 10px;
     height: 18px;
     background: #78a878;
-    animation: blink 1s steps(1) infinite;
+    animation: blink .7s steps(1) infinite;
 }
 
 @keyframes blink {
-    50% {
-        opacity: 0;
-    }
+    50% { opacity: 0; }
 }
 
-#flash {
+/* ГЛИТЧ */
+
+#glitch {
     position: fixed;
     inset: 0;
-    background: #000;
-    color: #aaa;
     display: none;
-    align-items: center;
-    justify-content: center;
+    background: #000;
+    color: #79c985;
     font-family: "Courier New", monospace;
-    font-size: clamp(16px, 3vw, 30px);
+    z-index: 20;
+    overflow: hidden;
+}
+
+.glitch-text {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: clamp(18px, 5vw, 55px);
+    font-weight: bold;
+    white-space: nowrap;
+    text-shadow:
+        4px 0 #ff003c,
+        -4px 0 #00ffff;
+    animation: shake .05s infinite;
+}
+
+.glitch-line {
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background: #79c985;
+    opacity: .7;
+    animation: lines .08s infinite;
+}
+
+.glitch-line:nth-child(2) { top: 18%; }
+.glitch-line:nth-child(3) { top: 43%; }
+.glitch-line:nth-child(4) { top: 71%; }
+.glitch-line:nth-child(5) { top: 88%; }
+
+@keyframes shake {
+    0%   { transform: translate(-50%, -50%) translate(0); }
+    25%  { transform: translate(-48%, -52%) translate(8px, -3px); }
+    50%  { transform: translate(-52%, -48%) translate(-7px, 4px); }
+    75%  { transform: translate(-49%, -51%) translate(4px, 6px); }
+    100% { transform: translate(-50%, -50%) translate(0); }
+}
+
+@keyframes lines {
+    0% { transform: translateX(-20%); }
+    50% { transform: translateX(20%); }
+    100% { transform: translateX(-10%); }
+}
+
+.red {
+    color: #b63b3b;
+}
+
+.big {
+    font-size: clamp(25px, 7vw, 70px);
+}
+
+/* СТАРЫЙ МОНИТОР */
+
+.crt {
+    animation: crt .12s infinite;
+}
+
+@keyframes crt {
+    0% { filter: brightness(1); }
+    50% { filter: brightness(.7) contrast(1.4); }
+    100% { filter: brightness(1.2); }
 }
 </style>
 </head>
@@ -80,8 +141,15 @@ body {
     <div id="log"></div>
 </div>
 
-<div id="flash">
-    09:15 ADMIN → INSIDE
+<div id="glitch">
+    <div class="glitch-text" id="glitchText">
+        ADMIN → INSIDE
+    </div>
+
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
+    <div class="glitch-line"></div>
 </div>
 
 <script>
@@ -104,7 +172,8 @@ const lines = [
 ];
 
 const log = document.getElementById("log");
-const flash = document.getElementById("flash");
+const glitch = document.getElementById("glitch");
+const glitchText = document.getElementById("glitchText");
 
 let index = 0;
 
@@ -112,30 +181,7 @@ function typeLine() {
 
     if (index >= lines.length) {
 
-        setTimeout(() => {
-
-            log.innerHTML +=
-                "\n\n09:15 ADMIN → <span class='cursor'></span>";
-
-            setTimeout(() => {
-
-                flash.style.display = "flex";
-
-                setTimeout(() => {
-
-                    flash.style.display = "none";
-
-                    log.innerHTML =
-                        "09:15 ADMIN → PORT\n\n" +
-                        "09:15 ADMIN → INSIDE\n\n" +
-                        "<span class='cursor'></span>";
-
-                }, 700);
-
-            }, 2500);
-
-        }, 1000);
-
+        setTimeout(startGlitch, 1800);
         return;
     }
 
@@ -152,6 +198,62 @@ function typeLine() {
     index++;
 
     setTimeout(typeLine, 220);
+}
+
+function startGlitch() {
+
+    glitch.style.display = "block";
+
+    let phase = 0;
+
+    const interval = setInterval(() => {
+
+        phase++;
+
+        if (phase === 1) {
+            glitchText.textContent = "09:15 ADMIN → INSIDE";
+        }
+
+        if (phase === 5) {
+            glitchText.textContent = "ADMIN — ACTIVE";
+        }
+
+        if (phase === 9) {
+            glitchText.textContent = "ADMIN → WALL";
+        }
+
+        if (phase === 13) {
+            glitchText.textContent = "PC-04 → PC-04";
+        }
+
+        if (phase === 17) {
+            glitchText.textContent = "YOU ARE INSIDE";
+            glitchText.classList.add("big", "red");
+        }
+
+        if (phase >= 25) {
+
+            clearInterval(interval);
+
+            setTimeout(() => {
+
+                glitch.style.display = "none";
+
+                document.body.classList.add("crt");
+
+                log.innerHTML =
+                    "SYSTEM LOG\n\n" +
+                    "ADMIN — ACTIVE\n\n" +
+                    "09:15 ADMIN → PORT\n\n" +
+                    "09:15 ADMIN → INSIDE\n\n" +
+                    "09:16 ADMIN → WALL\n\n" +
+                    "<span class='cursor'></span>";
+
+            }, 350);
+
+        }
+
+    }, 90);
 }
 
 typeLine();
