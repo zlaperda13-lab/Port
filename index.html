@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PORT</title>
+
+<style>
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    background: #050605;
+    color: #78a878;
+    font-family: "Courier New", monospace;
+    overflow: hidden;
+}
+
+body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#screen {
+    width: 90%;
+    max-width: 850px;
+    height: 80%;
+    padding: 30px;
+    box-sizing: border-box;
+    background: #071008;
+    border: 1px solid #263d2a;
+    box-shadow:
+        inset 0 0 50px #000,
+        0 0 25px #0b160d;
+}
+
+#log {
+    white-space: pre-wrap;
+    font-size: clamp(14px, 2vw, 19px);
+    line-height: 1.7;
+}
+
+.dim {
+    opacity: 0.55;
+}
+
+.cursor {
+    display: inline-block;
+    width: 10px;
+    height: 18px;
+    background: #78a878;
+    animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
+}
+
+#flash {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    color: #aaa;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-family: "Courier New", monospace;
+    font-size: clamp(16px, 3vw, 30px);
+}
+</style>
+</head>
+
+<body>
+
+<div id="screen">
+    <div id="log"></div>
+</div>
+
+<div id="flash">
+    09:15 ADMIN → INSIDE
+</div>
+
+<script>
+
+const lines = [
+    "SYSTEM LOG",
+    "",
+    "CONNECTION ESTABLISHED",
+    "EDITORIAL NETWORK / ARCHIVE",
+    "",
+    "ADMIN — ACTIVE",
+    "",
+    "PC-04 → PC-07",
+    "PC-07 → PC-04",
+    "PC-04 → PC-04",
+    "",
+    "PORT STATUS: UNKNOWN",
+    "",
+    "09:15 ADMIN → PORT"
+];
+
+const log = document.getElementById("log");
+const flash = document.getElementById("flash");
+
+let index = 0;
+
+function typeLine() {
+
+    if (index >= lines.length) {
+
+        setTimeout(() => {
+
+            log.innerHTML +=
+                "\n\n09:15 ADMIN → <span class='cursor'></span>";
+
+            setTimeout(() => {
+
+                flash.style.display = "flex";
+
+                setTimeout(() => {
+
+                    flash.style.display = "none";
+
+                    log.innerHTML =
+                        "09:15 ADMIN → PORT\n\n" +
+                        "09:15 ADMIN → INSIDE\n\n" +
+                        "<span class='cursor'></span>";
+
+                }, 700);
+
+            }, 2500);
+
+        }, 1000);
+
+        return;
+    }
+
+    const line = document.createElement("div");
+
+    if (index === 0 || index === 10) {
+        line.className = "dim";
+    }
+
+    line.textContent = lines[index];
+
+    log.appendChild(line);
+
+    index++;
+
+    setTimeout(typeLine, 220);
+}
+
+typeLine();
+
+</script>
+
+</body>
+</html>
