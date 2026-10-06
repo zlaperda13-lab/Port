@@ -3,15 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PORT // CORRUPTED</title>
+<title>PORT</title>
 
 <style>
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+* { box-sizing: border-box; }
+
 html, body {
     margin: 0;
     height: 100%;
     background: #020302;
     color: #78a878;
-    font-family: "Courier New", Courier, monospace;
+    font-family: "Courier New", monospace;
     overflow: hidden;
 }
 
@@ -26,12 +30,9 @@ body {
     max-width: 900px;
     height: 82%;
     padding: 28px;
-    box-sizing: border-box;
     background: #061006;
     border: 1px solid #29402d;
-    box-shadow:
-        inset 0 0 70px #000,
-        0 0 25px #0b170d;
+    box-shadow: inset 0 0 70px #000, 0 0 25px #0b170d;
     position: relative;
     overflow: hidden;
     display: flex;
@@ -43,19 +44,16 @@ body {
     position: absolute;
     inset: 0;
     pointer-events: none;
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(0, 0, 0, .18) 0 1px,
-        transparent 1px 3px
-    );
+    background: repeating-linear-gradient(to bottom,
+        rgba(0,0,0,.18) 0 1px, transparent 1px 3px);
     opacity: .45;
+    z-index: 10;
 }
 
 #log {
     flex: 1 1 auto;
     min-height: 0;
     overflow-y: auto;
-    overflow-x: hidden;
     font-size: clamp(14px, 2vw, 19px);
     line-height: 1.65;
     white-space: pre-wrap;
@@ -66,7 +64,6 @@ body {
 #log::-webkit-scrollbar { display: none; }
 
 .line { min-height: 1.65em; }
-
 .dim { opacity: .45; }
 
 .cursor {
@@ -80,38 +77,90 @@ body {
 
 @keyframes blink { 50% { opacity: 0; } }
 
-/* ========== ХОРРОР-ГЛИТЧ ========== */
+/* ============ ФИНАЛЬНЫЙ РЕЖИМ ============ */
+
+#log.finale-mode {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    overflow: hidden;
+    white-space: normal;
+}
+
+.final-line {
+    font-family: "VT323", "Courier New", monospace;
+    font-size: clamp(22px, 5vw, 62px);
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #b9e8b9;
+    text-transform: uppercase;
+    line-height: 1.25;
+    white-space: normal;
+    word-break: keep-all;
+    /* жирная обводка — имитация DOS-шрифта */
+    -webkit-text-stroke: 0.8px #b9e8b9;
+    text-shadow:
+        1.5px 0 0 #b9e8b9, -1.5px 0 0 #b9e8b9,
+        0 1.5px 0 #b9e8b9, 0 -1.5px 0 #b9e8b9,
+        1.5px 1.5px 0 #b9e8b9, -1.5px -1.5px 0 #b9e8b9,
+        1.5px -1.5px 0 #b9e8b9, -1.5px 1.5px 0 #b9e8b9,
+        0 0 18px rgba(120, 200, 120, 0.5),
+        0 0 45px rgba(80, 160, 80, 0.35);
+    position: relative;
+    transition: color 0.2s, text-shadow 0.2s;
+}
+
+.final-line.flicker {
+    animation: finalFlicker 0.1s steps(2) infinite;
+}
+
+@keyframes finalFlicker {
+    0%   { transform: translate(0, 0); color: #b9e8b9; }
+    50%  { transform: translate(-2px, 1px); color: #ff4444;
+           text-shadow: 4px 0 #00ffff, -4px 0 #ff00ff, 0 0 30px #ff0000; }
+    100% { transform: translate(2px, -1px); color: #b9e8b9; }
+}
+
+.final-cursor {
+    display: inline-block;
+    width: 0.45em;
+    height: 1em;
+    background: #b9e8b9;
+    vertical-align: -0.12em;
+    margin-left: 0.18em;
+    animation: blink 0.9s steps(1) infinite;
+    box-shadow: 0 0 14px rgba(180, 230, 180, 0.9);
+}
+
+/* ============ ХОРРОР ============ */
 
 #horror {
     position: fixed;
     inset: 0;
     background: #000;
     z-index: 100;
-    display: none;
     overflow: hidden;
     font-family: "Courier New", monospace;
-    color: #0f0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.9s ease, visibility 0.9s;
 }
 
 #horror.active {
-    display: block;
+    opacity: 1;
+    visibility: visible;
 }
 
-/* статический шум */
 .static {
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        rgba(255,255,255,0.06) 0px,
-        rgba(255,255,255,0.06) 1px,
-        transparent 1px,
-        transparent 3px
-    );
+    background: repeating-linear-gradient(0deg,
+        rgba(255,255,255,0.06) 0px, rgba(255,255,255,0.06) 1px,
+        transparent 1px, transparent 3px);
     animation: staticMove 0.08s steps(10) infinite;
     opacity: 0.6;
     pointer-events: none;
-    z-index: 1;
 }
 
 @keyframes staticMove {
@@ -122,20 +171,14 @@ body {
     100% { transform: translate(6px, 6px); }
 }
 
-/* скан-линии */
 .scanlines {
     position: absolute;
     inset: 0;
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(0,0,0,0.4) 0px,
-        rgba(0,0,0,0.4) 2px,
-        transparent 2px,
-        transparent 4px
-    );
+    background: repeating-linear-gradient(to bottom,
+        rgba(0,0,0,0.4) 0px, rgba(0,0,0,0.4) 2px,
+        transparent 2px, transparent 4px);
     animation: scanMove 0.15s linear infinite;
     pointer-events: none;
-    z-index: 2;
 }
 
 @keyframes scanMove {
@@ -143,7 +186,6 @@ body {
     100% { transform: translateY(4px); }
 }
 
-/* главный текст */
 .horror-text {
     position: absolute;
     left: 50%;
@@ -158,6 +200,7 @@ body {
     z-index: 3;
     text-align: center;
     letter-spacing: 4px;
+    transition: font-size 0.3s ease, letter-spacing 0.3s ease;
 }
 
 @keyframes horrorShake {
@@ -177,7 +220,6 @@ body {
     100% { text-shadow: 6px 0 #00ffff, -6px 0 #ff00ff; }
 }
 
-/* горизонтальные полосы-разрывы */
 .glitch-line {
     position: absolute;
     width: 100%;
@@ -199,54 +241,80 @@ body {
     100% { transform: translateX(-20%); opacity: .3; }
 }
 
-/* тряска всего body */
 body.horror-active {
     animation: bodyShake 0.08s infinite;
 }
 
 @keyframes bodyShake {
-    0%   { transform: translate(0, 0); }
-    10%  { transform: translate(-6px, -6px); }
-    20%  { transform: translate(6px, 6px); }
-    30%  { transform: translate(-6px, 6px); }
-    40%  { transform: translate(6px, -6px); }
-    50%  { transform: translate(-6px, -6px); }
-    60%  { transform: translate(6px, 6px); }
-    70%  { transform: translate(-6px, 6px); }
-    80%  { transform: translate(6px, -6px); }
-    90%  { transform: translate(0, 0); }
-    100% { transform: translate(0, 0); }
+    0%, 100% { transform: translate(0, 0); }
+    10% { transform: translate(-6px, -6px); }
+    20% { transform: translate(6px, 6px); }
+    30% { transform: translate(-6px, 6px); }
+    40% { transform: translate(6px, -6px); }
+    50% { transform: translate(-6px, -6px); }
+    60% { transform: translate(6px, 6px); }
+    70% { transform: translate(-6px, 6px); }
+    80% { transform: translate(6px, -6px); }
 }
 
-/* мигание фона экрана */
-body.horror-active #screen {
-    animation: flashBg 0.07s infinite alternate;
-}
-
-@keyframes flashBg {
-    0%   { background: #061006; }
-    30%  { background: #1a0000; }
-    60%  { background: #000000; }
-    100% { background: #0a1a0a; }
-}
-
-/* инверсия */
 .invert {
     filter: invert(1) hue-rotate(180deg) contrast(2);
 }
 
-/* порченные строки */
 .corrupted {
     color: #ff0000 !important;
     text-shadow: 2px 0 #00ffff, -2px 0 #ff00ff;
-    background: rgba(255, 0, 0, 0.05);
 }
 
-/* уважение к настройкам системы */
+/* ============ ПРИЗРАЧНЫЕ АНОМАЛИИ ============ */
+
+.ghost-msg {
+    position: fixed;
+    font-family: "VT323", "Courier New", monospace;
+    font-size: clamp(14px, 1.7vw, 24px);
+    color: #5a9a5a;
+    letter-spacing: 2px;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    pointer-events: none;
+    z-index: 15;
+    text-shadow: 0 0 8px rgba(120, 200, 120, 0.6);
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.ghost-msg.visible { opacity: 0.7; }
+
+.random-char {
+    position: fixed;
+    font-family: "VT323", "Courier New", monospace;
+    color: #5a9a5a;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    z-index: 14;
+    text-shadow: 0 0 6px rgba(120, 200, 120, 0.7);
+}
+
+.random-char.visible { opacity: 0.5; }
+
+body.static-burst::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(0deg,
+        rgba(255,255,255,0.13) 0px, rgba(255,255,255,0.13) 1px,
+        transparent 1px, transparent 2px);
+    z-index: 50;
+    pointer-events: none;
+    animation: staticMove 0.08s steps(10) infinite;
+    mix-blend-mode: screen;
+}
+
 @media (prefers-reduced-motion: reduce) {
-    .cursor, .crt, .glitch-text, .glitch-line,
-    .static, .scanlines, .horror-text,
-    body.horror-active { animation: none !important; }
+    .cursor, .glitch-line, .static, .scanlines,
+    .horror-text, body.horror-active,
+    .final-line.flicker, body.static-burst::after { animation: none !important; }
 }
 </style>
 </head>
@@ -257,7 +325,6 @@ body.horror-active #screen {
     <div id="log"></div>
 </div>
 
-<!-- ХОРРОР-ОВЕРЛЕЙ -->
 <div id="horror">
     <div class="static"></div>
     <div class="scanlines"></div>
@@ -272,9 +339,9 @@ body.horror-active #screen {
 (function () {
     "use strict";
 
-    const log       = document.getElementById("log");
-    const screenEl  = document.getElementById("screen");
-    const horror    = document.getElementById("horror");
+    const log        = document.getElementById("log");
+    const screenEl   = document.getElementById("screen");
+    const horror     = document.getElementById("horror");
     const horrorText = document.getElementById("horrorText");
 
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -319,33 +386,19 @@ body.horror-active #screen {
         ["09:15 ADMIN → PORT"]
     ];
 
-    const FINAL = [
-        ["SYSTEM LOG", "dim"],
-        [""],
-        ["ADMIN — ACTIVE"],
-        [""],
-        ["09:15 ADMIN → PORT"],
-        ["09:15 ADMIN → INSIDE"],
-        ["09:16 ADMIN → WALL"],
-        ["09:17 ADMIN → YOU"]
-    ];
-
-    /* ---------- печать ---------- */
+    /* ---------- печать логов ---------- */
 
     let index = 0;
 
     function typeLine() {
         if (index >= OPENING.length) {
-            setTimeout(startHorror, 1800);
+            setTimeout(startHorror, 1600);
             return;
         }
-
         const entry = OPENING[index];
         log.insertBefore(makeLine(entry[0], entry[1]), caret);
         log.scrollTop = log.scrollHeight;
-
         index++;
-
         const delay = entry[0] ? 190 + Math.random() * 110 : 90;
         setTimeout(typeLine, delay);
     }
@@ -354,13 +407,12 @@ body.horror-active #screen {
 
     function startHorror() {
         if (reduceMotion) {
-            render(FINAL);
+            startFinale();
             return;
         }
 
-        // Включаем ад
-        document.body.classList.add('horror-active');
-        horror.classList.add('active');
+        document.body.classList.add("horror-active");
+        horror.classList.add("active");
 
         const phrases = [
             "YOU ARE INSIDE",
@@ -377,40 +429,34 @@ body.horror-active #screen {
             "СЛИШКОМ ПОЗДНО"
         ];
 
-        // Бешеное мигание текста и фона
-        const textInterval = setInterval(() => {
+        const textInterval = setInterval(function () {
             horrorText.textContent = phrases[Math.floor(Math.random() * phrases.length)];
 
-            if (Math.random() < 0.4) {
-                screenEl.classList.toggle('invert');
-            }
+            if (Math.random() < 0.4) screenEl.classList.toggle("invert");
 
-            const colors = ['#000', '#1a0000', '#001a00', '#1a1a00', '#0a0a0a'];
+            const colors = ["#000", "#1a0000", "#001a00", "#1a1a00", "#0a0a0a"];
             horror.style.background = colors[Math.floor(Math.random() * colors.length)];
         }, 80);
 
-        // Порча логов
-        const symbols = '!@#$%^&*()_+-=[]{}|;:",.<>?/\\~`ЖДЫШЩЮЯ';
-        const corruptionInterval = setInterval(() => {
-            const lines = log.querySelectorAll('.line');
-            if (lines.length === 0) return;
-
+        /* порча логов */
+        const symbols = "!@#$%^&*()_+-=[]{}|;:\",.<>?/\\~`ЖДЫШЩЮЯ";
+        const corruptionInterval = setInterval(function () {
+            const lines = log.querySelectorAll(".line");
+            if (!lines.length) return;
             const line = lines[Math.floor(Math.random() * lines.length)];
             const txt = line.textContent;
-            if (txt === '\u00A0' || txt.length < 2) return;
-
+            if (txt === "\u00A0" || txt.length < 2) return;
             const pos = Math.floor(Math.random() * txt.length);
             const sym = symbols[Math.floor(Math.random() * symbols.length)];
             line.textContent = txt.substring(0, pos) + sym + txt.substring(pos + 1);
-            line.classList.add('corrupted');
-
+            line.classList.add("corrupted");
             if (Math.random() < 0.3) {
-                setTimeout(() => line.classList.remove('corrupted'), 150);
+                setTimeout(function () { line.classList.remove("corrupted"); }, 150);
             }
         }, 40);
 
-        // Через 5 секунд — финальный выброс
-        setTimeout(() => {
+        /* финальный выброс */
+        setTimeout(function () {
             clearInterval(textInterval);
             clearInterval(corruptionInterval);
 
@@ -420,34 +466,185 @@ body.horror-active #screen {
             horrorText.style.fontSize = "clamp(50px, 14vw, 180px)";
             horrorText.style.letterSpacing = "8px";
 
-            // Ещё немного ада
-            const finalFlash = setInterval(() => {
-                horror.style.background = Math.random() < 0.5 ? '#1a0000' : '#000';
-                screenEl.classList.toggle('invert');
+            const finalFlash = setInterval(function () {
+                horror.style.background = Math.random() < 0.5 ? "#1a0000" : "#000";
+                screenEl.classList.toggle("invert");
             }, 60);
 
-            // Через 3 секунды всё стихает
-            setTimeout(() => {
+            setTimeout(function () {
                 clearInterval(finalFlash);
-                horror.classList.remove('active');
-                document.body.classList.remove('horror-active');
-                screenEl.classList.remove('invert');
-                horror.style.background = '#000';
+                startFinale();
+            }, 2400);
+        }, 4200);
+    }
 
-                render(FINAL);
-            }, 3000);
-        }, 5000);
+    /* ---------- ФИНАЛ: тишина и медленная печать ---------- */
+
+    function startFinale() {
+        // плавно убираем хоррор
+        horror.classList.remove("active");
+        document.body.classList.remove("horror-active");
+        screenEl.classList.remove("invert");
+        horror.style.background = "#000";
+
+        // дать экрану "остыть"
+        setTimeout(function () {
+            log.classList.add("finale-mode");
+            log.textContent = "";
+
+            const finalLine = document.createElement("div");
+            finalLine.className = "final-line";
+
+            const textSpan = document.createElement("span");
+            textSpan.className = "final-text";
+
+            const cursor = document.createElement("span");
+            cursor.className = "final-cursor";
+
+            finalLine.appendChild(textSpan);
+            finalLine.appendChild(cursor);
+            log.appendChild(finalLine);
+
+            const msg = "YOU ARE ALREADY HERE TOO";
+
+            if (reduceMotion) {
+                textSpan.textContent = msg;
+                startMystery(finalLine);
+                return;
+            }
+
+            typeFinalMessage(textSpan, finalLine, msg);
+        }, 1900);
+    }
+
+    function typeFinalMessage(target, lineEl, text) {
+        let i = 0;
+
+        function step() {
+            if (i >= text.length) {
+                setTimeout(function () { startMystery(lineEl); }, 1400);
+                return;
+            }
+
+            const ch = text[i];
+            target.textContent += ch;
+            i++;
+
+            // редкое искажение прямо во время печати
+            if (Math.random() < 0.09) {
+                lineEl.classList.add("flicker");
+                setTimeout(function () { lineEl.classList.remove("flicker"); },
+                    90 + Math.random() * 130);
+            }
+
+            let delay;
+            if (ch === " ") {
+                delay = 600 + Math.random() * 500;   // долгие паузы между словами
+            } else {
+                delay = 130 + Math.random() * 180;
+                if (Math.random() < 0.12) delay += 380; // редкие "зависания"
+            }
+            setTimeout(step, delay);
+        }
+
+        step();
+    }
+
+    /* ---------- АНОМАЛИИ ПОСЛЕ ПОСЛАНИЯ ---------- */
+
+    function startMystery(finalLine) {
+        const ghosts = [
+            "PC-04",
+            "09:16",
+            "09:17",
+            "он всё ещё здесь",
+            "порт №7",
+            "не оглядывайся",
+            "PC-07 → YOU",
+            "THE PORT IS OPEN",
+            "он смотрит",
+            "он рядом",
+            "the wall has eyes",
+            "you cannot leave",
+            "он дышит",
+            "ты следующий",
+            "он уже внутри",
+            "не выходи"
+        ];
+
+        // 1. Призрачные сообщения всплывают в случайных точках
+        (function ghostLoop() {
+            const msg = document.createElement("div");
+            msg.className = "ghost-msg";
+            msg.textContent = ghosts[Math.floor(Math.random() * ghosts.length)];
+            msg.style.left = (8 + Math.random() * 68) + "%";
+            msg.style.top  = (8 + Math.random() * 80) + "%";
+            document.body.appendChild(msg);
+
+            requestAnimationFrame(function () { msg.classList.add("visible"); });
+            setTimeout(function () { msg.classList.remove("visible"); },
+                500 + Math.random() * 900);
+            setTimeout(function () { msg.remove(); }, 2300);
+
+            setTimeout(ghostLoop, 2500 + Math.random() * 4500);
+        })();
+
+        // 2. Одиночные символы-призраки
+        const chars = "ЖДЫШЩЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#@$%&";
+        setInterval(function () {
+            const c = document.createElement("div");
+            c.className = "random-char";
+            c.textContent = chars[Math.floor(Math.random() * chars.length)];
+            c.style.left = (Math.random() * 92) + "%";
+            c.style.top  = (Math.random() * 88) + "%";
+            c.style.fontSize = (12 + Math.random() * 26) + "px";
+            document.body.appendChild(c);
+            requestAnimationFrame(function () { c.classList.add("visible"); });
+            setTimeout(function () { c.classList.remove("visible"); },
+                250 + Math.random() * 550);
+            setTimeout(function () { c.remove(); }, 1400);
+        }, 1600);
+
+        // 3. Редкая порча самого послания
+        setInterval(function () {
+            if (!finalLine) return;
+            if (Math.random() < 0.5) {
+                finalLine.classList.add("flicker");
+                setTimeout(function () { finalLine.classList.remove("flicker"); },
+                    80 + Math.random() * 180);
+            }
+        }, 2200);
+
+        // 4. Вспышки статики
+        setInterval(function () {
+            if (Math.random() < 0.4) {
+                document.body.classList.add("static-burst");
+                setTimeout(function () { document.body.classList.remove("static-burst"); },
+                    50 + Math.random() * 90);
+            }
+        }, 3500);
+
+        // 5. Медленная пульсация яркости свечения
+        let pulse = 0;
+        setInterval(function () {
+            if (!finalLine) return;
+            pulse = (pulse + 1) % 8;
+            const glow = 15 + Math.abs(4 - pulse) * 6;
+            finalLine.style.textShadow =
+                "1.5px 0 0 #b9e8b9, -1.5px 0 0 #b9e8b9, " +
+                "0 1.5px 0 #b9e8b9, 0 -1.5px 0 #b9e8b9, " +
+                "1.5px 1.5px 0 #b9e8b9, -1.5px -1.5px 0 #b9e8b9, " +
+                "1.5px -1.5px 0 #b9e8b9, -1.5px 1.5px 0 #b9e8b9, " +
+                "0 0 " + glow + "px rgba(120, 200, 120, 0.55), " +
+                "0 0 " + (glow * 2.5) + "px rgba(80, 160, 80, 0.35)";
+        }, 900);
     }
 
     /* ---------- запуск ---------- */
 
     render([]);
+    setTimeout(typeLine, 400);
 
-    if (reduceMotion) {
-        render(FINAL);
-    } else {
-        setTimeout(typeLine, 400);
-    }
 })();
 </script>
 
